@@ -22,6 +22,13 @@ type ClientOptions struct {
 }
 
 func NewClient(opts ClientOptions) *Client {
+	// Default hostname
+	if opts.Host == "" {
+		opts.Host = "https://www.gitbook.io"
+	}
+
+	// Setup session
+	// for authentication and custom headers
 	session := &napping.Session{
 		Userinfo: url.UserPassword(opts.Username, opts.Password),
 		Header:   &http.Header{},
