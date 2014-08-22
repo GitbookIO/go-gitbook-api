@@ -1,7 +1,6 @@
 package client
 
 import (
-	"fmt"
 	"github.com/jmcvetta/napping"
 	"net/http"
 	"net/url"
@@ -81,11 +80,14 @@ func (c *Client) Put(url string, payload, result interface{}) (*napping.Response
 
 // Url returns the full http url including host
 func (c *Client) Url(urlpath string) string {
+	// Ignore errors for now
 	parsed, _ := url.Parse(c.Host)
+
+	// Rewrite path
 	parsed.Path = path.Join(parsed.Path, urlpath)
-	str := parsed.String()
-	fmt.Printf("Going to '%s'\n", str)
-	return str
+
+	// Return string URL
+	return parsed.String()
 }
 
 // This is so we include API errors as well as protocol errors here
