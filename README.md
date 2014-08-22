@@ -29,7 +29,7 @@ func main() {
 
     // Print results
     fmt.Printf("book = %q\n", book)
-    fmt.Printf("book = %q\n", err)
+    fmt.Printf("error = %q\n", err)
 }
 ```
 
@@ -59,6 +59,6 @@ func main() {
 
     // Print results
     fmt.Printf("book = %q\n", book)
-    fmt.Printf("book = %q\n", err)
+    fmt.Printf("error = %q\n", err)
 }
 ```
