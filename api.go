@@ -2,6 +2,7 @@ package gitbook
 
 import (
 	"github.com/GitbookIO/go-gitbook-api/api"
+	"github.com/GitbookIO/go-gitbook-api/client"
 )
 
 type API struct {
@@ -15,13 +16,13 @@ type API struct {
 	User *api.User
 
 	// Internal client
-	Client *Client
+	Client *client.Client
 }
 
 type APIOpts ClientOpts
 
 func NewAPI(opts APIOpts) *API {
-	c := NewClient(opts)
+	c := client.NewClient(opts)
 	return &API{
 		Account: &api.Account{c},
 		Book:    &api.Book{c},

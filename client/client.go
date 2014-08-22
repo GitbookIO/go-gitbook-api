@@ -1,4 +1,4 @@
-package gitbook
+package client
 
 import (
 	"napping"
@@ -28,6 +28,8 @@ func NewClient(opts ClientOptions) *Client {
 		ClientOptions: &opts,
 	}
 }
+
+func (c *Client) Books()
 
 // Wrap napping.Session.Send
 // So that we insert the client's host in the URL
