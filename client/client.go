@@ -22,14 +22,12 @@ type ClientOptions struct {
 
 func NewClient(opts ClientOptions) *Client {
 	return &Client{
-		Session: napping.Session{
+		Session: &napping.Session{
 			Userinfo: url.UserPassword(opts.Username, opts.Password),
 		},
 		ClientOptions: &opts,
 	}
 }
-
-func (c *Client) Books()
 
 // Wrap napping.Session.Send
 // So that we insert the client's host in the URL
