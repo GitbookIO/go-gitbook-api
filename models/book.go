@@ -18,4 +18,10 @@ type Book struct {
 		Write  bool `json:"write"`
 		Manage bool `json:"manage"`
 	} `json:"permissions"`
+
+	LatestBuild struct {
+		Version  string `json:"version"`
+		Finished string `json:"finished"`
+		Started  string `json:"started"`
+	} `json:"latestBuild"`
 }
