@@ -19,10 +19,10 @@ type API struct {
 	Client *client.Client
 }
 
-type APIOpts ClientOpts
+type APIOptions client.ClientOptions
 
-func NewAPI(opts APIOpts) *API {
-	c := client.NewClient(opts)
+func NewAPI(opts APIOptions) *API {
+	c := client.NewClient(client.ClientOptions(opts))
 	return &API{
 		Account: &api.Account{c},
 		Book:    &api.Book{c},
