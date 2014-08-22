@@ -1,9 +1,9 @@
 package client
 
 import (
-	"napping"
+	"github.com/jmcvetta/napping"
+	"net/url"
 	"path"
-	"url"
 )
 
 type Client struct {
