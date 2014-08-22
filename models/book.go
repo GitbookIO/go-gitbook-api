@@ -12,4 +12,10 @@ type Book struct {
 		Name     string `json:"name"`
 		Username string `json:"username"`
 	} `json:"author"`
+
+	Permissions struct {
+		Read   bool `json:"read"`
+		Write  bool `json:"write"`
+		Manage bool `json:"manage"`
+	} `json:"permissions"`
 }
