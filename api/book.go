@@ -20,7 +20,6 @@ func (b *Book) Get(bookId string) (models.Book, error) {
 		fmt.Sprintf("/api/book/%s", bookId),
 		nil,
 		&book,
-		nil,
 	)
 
 	return book, err
