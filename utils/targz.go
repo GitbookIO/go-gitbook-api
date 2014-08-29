@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"io"
 	"os/exec"
 )
 
@@ -32,14 +33,14 @@ func tarCommand(args []string, dir string) (io.ReadCloser, error) {
 
 // Generate args for excluding files
 func tarExcludeArgs(files ...string) []string {
-	excluding := []string{}
+	excluding := []string{"tar"}
 
 	for _, f := range files {
-		excluding = append("--exclude", f)
+		excluding = append(excluding, "--exclude", f)
 	}
 
 	return append(
-		[]string{}, tarArgs[0],
-		append(excluding, tarArgs[1:]...)...,
+		excluding,
+		"-cz", "-", ".",
 	)
 }

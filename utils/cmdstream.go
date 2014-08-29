@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"fmt"
 	"io"
+	"io/ioutil"
+	"os/exec"
 )
 
 // CmdStream executes a command, and returns its stdout as a stream.
