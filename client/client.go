@@ -32,6 +32,7 @@ func NewClient(opts ClientOptions) *Client {
 	session := &napping.Session{
 		Userinfo: url.UserPassword(opts.Username, opts.Password),
 		Header:   &http.Header{},
+		Client:   &http.Client{},
 	}
 
 	// We want JSON responses (for errors especially)
