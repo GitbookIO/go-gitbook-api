@@ -1,8 +1,6 @@
 package api
 
 import (
-	"bytes"
-
 	"testing"
 
 	"github.com/GitbookIO/go-gitbook-api/client"
@@ -16,10 +14,7 @@ func TestBasic(t *testing.T) {
 	})
 	b := Book{c}
 
-	buf := &bytes.Buffer{}
-	buf.Write([]byte("heelo"))
-
-	if err := b.PublishStream("aaronomullan/some-paid-book", "99.55.5", buf); err != nil {
+	if err := b.Publish("aaronomullan/some-paid-book", "6.6.6", "/Users/aaron/git/jsbook"); err != nil {
 		t.Error(err)
 	}
 }
