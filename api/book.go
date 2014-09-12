@@ -95,8 +95,6 @@ func (b *Book) PublishFolder(bookId, version, bookpath string) error {
 	return b.PublishStream(bookId, version, tar)
 }
 
-
-
 // PublishTarGz publishes a book based on a tar.gz file
 func (b *Book) PublishTarGz(bookId, version, bookpath string) error {
 	file, err := os.Open(bookpath)
@@ -178,8 +176,7 @@ func newfileUploadRequest(uri string, params map[string]string, paramName string
 }
 
 func isGitDir(dirpath string) bool {
-	return (
-		exists(path.Join(dirpath, "HEAD")) &&
+	return (exists(path.Join(dirpath, "HEAD")) &&
 		exists(path.Join(dirpath, "objects")) &&
 		exists(path.Join(dirpath, "refs")))
 }

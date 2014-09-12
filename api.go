@@ -29,6 +29,6 @@ func NewAPI(opts APIOptions) *API {
 		Book:    &api.Book{c},
 		Books:   &api.Books{c},
 		User:    &api.User{c},
-		Client: c,
+		Client:  c,
 	}
 }
