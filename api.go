@@ -23,10 +23,12 @@ type APIOptions client.ClientOptions
 
 func NewAPI(opts APIOptions) *API {
 	c := client.NewClient(client.ClientOptions(opts))
+
 	return &API{
 		Account: &api.Account{c},
 		Book:    &api.Book{c},
 		Books:   &api.Books{c},
 		User:    &api.User{c},
+		Client: c,
 	}
 }
