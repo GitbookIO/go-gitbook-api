@@ -33,6 +33,9 @@ func NewClient(opts ClientOptions) *Client {
 		Userinfo: url.UserPassword(opts.Username, opts.Password),
 		Header:   &http.Header{},
 		Client:   &http.Client{},
+
+		// Authorize use of client to HTTP endpoints
+		UnsafeBasicAuth: true,
 	}
 
 	// We want JSON responses (for errors especially)
