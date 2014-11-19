@@ -1,10 +1,12 @@
 package streams
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/GitbookIO/go-gitbook-api/utils"
 )
