@@ -6,15 +6,10 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
-	"path"
-	"path/filepath"
-	"strings"
 
 	"github.com/GitbookIO/go-gitbook-api/client"
 	"github.com/GitbookIO/go-gitbook-api/models"
 	"github.com/GitbookIO/go-gitbook-api/streams"
-	"github.com/GitbookIO/go-gitbook-api/utils"
 
 	"mime/multipart"
 )
@@ -81,7 +76,7 @@ func (b *Book) BuildTarGz(bookId, version, bookpath string) error {
 	return b.doStreamPublish(bookId, version, bookpath, streams.File, b.PublishBuildStream)
 }
 
-func (b *Book) doStreamPublish(bookId, version, bookpath string, streamfn streams.StreamFunc, postfn postStream) {
+func (b *Book) doStreamPublish(bookId, version, bookpath string, streamfn streams.StreamFunc, postfn postStream) error {
 	stream, err := streamfn(bookpath)
 	if err != nil {
 		return err
@@ -108,10 +103,10 @@ func (b *Book) PublishBookStream(bookId, version string, r io.Reader) error {
 }
 
 // PublishStream
-func (b *Book) PublishStream(url, version string, r io.Reader) error {
+func (b *Book) PublishStream(_url, version string, r io.Reader) error {
 	// Build request
 	req, err := newfileUploadRequest(
-		b.Client.Url(url),
+		b.Client.Url(_url),
 		// No params
 		nil,
 		"book",
