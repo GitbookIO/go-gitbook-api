@@ -10,7 +10,7 @@ import (
 // at a specific ref
 func GitTar(dir, ref string) (io.ReadCloser, error) {
 	// Build tar using git-archive
-	args := []string{"git-archive", "--format=tar", ref}
+	args := []string{"git", "archive", "--format=tar", ref}
 
 	cmd := exec.Command(args[0], args[1:]...)
 	// Set directory to repo's
