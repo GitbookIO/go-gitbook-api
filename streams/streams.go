@@ -45,6 +45,12 @@ func Git(p, ref string) (io.ReadCloser, error) {
 	return utils.GitTarGz(p, ref)
 }
 
+func GitRef(ref string) StreamFunc {
+	return func(p string) (io.ReadCloser, error) {
+		return Git(p, ref)
+	}
+}
+
 func Folder(p string) (io.ReadCloser, error) {
 	return utils.TarGzExclude(
 		p,
