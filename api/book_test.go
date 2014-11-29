@@ -14,7 +14,7 @@ func TestBasic(t *testing.T) {
 	})
 	b := Book{c}
 
-	book, err := b.Get("aaronomullan/abc")
+	_, err := b.Get("aaronomullan/abc")
 	if err != nil {
 		t.Error(err)
 	}
