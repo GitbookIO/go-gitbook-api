@@ -23,7 +23,10 @@ type APIOptions client.ClientOptions
 
 func NewAPI(opts APIOptions) *API {
 	c := client.NewClient(client.ClientOptions(opts))
+	return NewAPIFromClient(c)
+}
 
+func NewAPIFromClient(c *client.Client) *API {
 	return &API{
 		Account: &api.Account{c},
 		Book:    &api.Book{c},
@@ -31,4 +34,14 @@ func NewAPI(opts APIOptions) *API {
 		User:    &api.User{c},
 		Client:  c,
 	}
+}
+
+func (a *API) Fork(opts APIOptions) *API {
+	forkedClient := a.Client.Fork(client.ClientOptions(opts))
+	return NewAPIFromClient(forkedClient)
+}
+
+func (a *API) AuthFork(username, password string) *API {
+	forkedClient := a.Client.AuthFork(username, password)
+	return NewAPIFromClient(forkedClient)
 }
