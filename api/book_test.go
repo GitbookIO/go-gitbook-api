@@ -14,7 +14,8 @@ func TestBasic(t *testing.T) {
 	})
 	b := Book{c}
 
-	if err := b.Publish("aaronomullan/some-paid-book", "6.6.6", "/Users/aaron/git/jsbook"); err != nil {
+	book, err := b.Get("aaronomullan/abc")
+	if err != nil {
 		t.Error(err)
 	}
 }
