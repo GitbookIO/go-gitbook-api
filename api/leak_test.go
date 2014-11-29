@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"sync"
+	"time"
 
 	"testing"
 
@@ -18,27 +19,34 @@ func TestLeaks(t *testing.T) {
 
 	wg := &sync.WaitGroup{}
 
+	// Create one client
+	c := client.NewClient(client.ClientOptions{
+		Host:     "http://localhost:5000",
+		Username: "aaronomullan",
+		Password: "0c72ca47-5145-481d-bed8-d8a076d1b3ad",
+	})
+
 	// Do some work
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 10; i++ {
 		go func() {
 			wg.Add(1)
-			c := client.NewClient(client.ClientOptions{
-				Host:     "http://localhost:5000",
-				Username: "aaronomullan",
-				Password: "0c72ca47-5145-481d-bed8-d8a076d1b3ad",
-			})
-			b := Book{c}
+			c2 := c.Fork(client.ClientOptions{})
+			b := Book{c2}
 
 			_, err := b.Get("aaronomullan/abc")
 			if err != nil {
 				t.Error(err)
 			}
+
+			wg.Done()
 		}()
 
 		t.Log(c1, "...", openDescriptors())
 	}
 
 	wg.Wait()
+
+	time.Sleep(time.Second)
 
 	// See how many files are open now
 	c2 := openDescriptors()
