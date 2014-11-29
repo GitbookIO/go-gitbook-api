@@ -44,6 +44,40 @@ func NewClient(opts ClientOptions) *Client {
 	}
 }
 
+// Fork creates a new client off of the base client
+// however it shares the same http.Client for efficiency reasons
+// this prevents socket leaks from happening etc ...
+func (c *Client) Fork(opts ClientOptions) *Client {
+	if opts.Host == "" {
+		opts.Host = c.Host
+	}
+	if opts.Username == "" {
+		opts.Username = c.Username
+	}
+	if opts.Password == "" {
+		opts.Password = c.Password
+	}
+
+	session := &napping.Session{
+		Userinfo: url.UserPassword(opts.Username, opts.Password),
+		Header:   c.Session.Header,
+		Client:   c.Session.Client,
+	}
+
+	return &Client{
+		Session:       session,
+		ClientOptions: &opts,
+	}
+}
+
+// AuthFork is a shorthand of Fork, when you simply want to change the auth
+func (c *Client) AuthFork(username, password string) *Client {
+	return c.Fork(ClientOptions{
+		Username: username,
+		Password: password,
+	})
+}
+
 func (c *Client) Delete(url string, result interface{}) (*napping.Response, error) {
 	return errorPatch(func(errMsg *Error) (*napping.Response, error) {
 		return c.Session.Delete(c.Url(url), result, errMsg)
