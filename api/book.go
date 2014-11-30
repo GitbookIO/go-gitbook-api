@@ -128,7 +128,10 @@ func (b *Book) PublishStream(_url, version string, r io.Reader) error {
 	req.URL.RawQuery = values.Encode()
 
 	// Execute request
-	_, err = b.Client.Client.Do(req)
+	resp, err := b.Client.Client.Do(req)
+	// Close body immediately to avoid leaks
+	resp.Body.Close()
+
 	return err
 }
 
