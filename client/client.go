@@ -1,10 +1,15 @@
 package client
 
 import (
-	"github.com/jmcvetta/napping"
+	"encoding/json"
+	"errors"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path"
+
+	"github.com/jmcvetta/napping"
 )
 
 type Client struct {
@@ -142,4 +147,22 @@ func errorPatch(f func(err *Error) (*napping.Response, error)) (*napping.Respons
 	}
 	// Normal or protcol error
 	return resp, err
+}
+
+func DecodeError(reader io.Reader) (*Error, error) {
+	errMsg := &Error{}
+	decoder := json.NewDecoder(reader)
+	err := decoder.Decode(errMsg)
+	if err != nil {
+		// Failed to decode, error must be string not JSON
+		data, err := ioutil.ReadAll(decoder.Buffered())
+		if err != nil {
+			return nil, err
+		}
+		return &Error{
+			Msg:  string(data[:]),
+			Code: 500,
+		}, nil
+	}
+	return errMsg, nil
 }

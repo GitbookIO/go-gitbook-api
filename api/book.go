@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -128,11 +129,28 @@ func (b *Book) PublishStream(_url, version string, r io.Reader) error {
 	req.URL.RawQuery = values.Encode()
 
 	// Execute request
-	resp, err := b.Client.Client.Do(req)
+	response, err := b.Client.Client.Do(req)
+	if err != nil {
+		return err
+	}
 	// Close body immediately to avoid leaks
-	resp.Body.Close()
+	defer response.Body.Close()
 
-	return err
+	if response.StatusCode >= 400 {
+		data, _ := ioutil.ReadAll(response.Body)
+		return fmt.Errorf(string(data[:]))
+	}
+
+	// Some error to code
+	if response.StatusCode >= 400 {
+		errMsg, err := client.DecodeError(response.Body)
+		if err != nil {
+			return err
+		}
+		return errMsg
+	}
+
+	return nil
 }
 
 // Creates a new file upload http request with optional extra params
