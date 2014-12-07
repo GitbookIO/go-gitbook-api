@@ -6,11 +6,23 @@ import (
 	"os/exec"
 )
 
-// GitTar return a stream of tar data of the repo
+// GitTar returns a stream of tar data of the repo
 // at a specific ref
 func GitTar(dir, ref string) (io.ReadCloser, error) {
-	// Build tar using git-archive
-	args := []string{"git", "archive", "--format=tar", ref}
+	return GitArchive(dir, ref, "tar")
+}
+
+// GitZip returns a stream of zip data of the repo
+// at a specific ref
+func GitZip(dir, ref string) (io.ReadCloser, error) {
+	return GitArchive(dir, ref, "zip")
+}
+
+// GitArchive returns a stream of archive data of the repo
+// at a specific ref, for the specified archive format (if supported)
+func GitArchive(dir, ref, format string) (io.ReadCloser, error) {
+	// Build archive using git-archive
+	args := []string{"git", "archive", "--format=" + format, ref}
 
 	cmd := exec.Command(args[0], args[1:]...)
 	// Set directory to repo's
