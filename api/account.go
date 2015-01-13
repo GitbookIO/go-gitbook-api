@@ -15,7 +15,7 @@ func (a *Account) Get() (models.Account, error) {
 	account := models.Account{}
 
 	_, err := a.Client.Get(
-		"/api/user/",
+		"/api/account",
 		nil,
 		&account,
 	)
