@@ -19,7 +19,7 @@ type Book struct {
 	Client *client.Client
 }
 
-type postStream func(bookId, version string, r io.Reader) error
+type postStream func(bookId, version, branch string, r io.Reader) error
 
 // Get returns a books details for a given "bookId"
 // (for example "gitbookio/javascript")
@@ -38,73 +38,75 @@ func (b *Book) Get(bookId string) (models.Book, error) {
 // Publish packages the desired book as a tar.gz and pushes it to gitbookio
 // bookpath can be a path to a tar.gz file, git repo or folder
 func (b *Book) Publish(bookId, version, bookpath string) error {
-	return b.doStreamPublish(bookId, version, bookpath, streams.PickStream, b.PublishBookStream)
+	return b.doStreamPublish(bookId, version, "", bookpath, streams.PickStream, b.PublishBookStream)
 }
 
 // PublishGit packages a git repo as tar.gz and uploads it to gitbook.io
 func (b *Book) PublishGit(bookId, version, bookpath, ref string) error {
-	return b.doStreamPublish(bookId, version, bookpath, streams.GitRef(ref), b.PublishBookStream)
+	return b.doStreamPublish(bookId, version, "", bookpath, streams.GitRef(ref), b.PublishBookStream)
 }
 
 // PublishFolder packages a folder as tar.gz and uploads it to gitbook.io
 func (b *Book) PublishFolder(bookId, version, bookpath string) error {
-	return b.doStreamPublish(bookId, version, bookpath, streams.Folder, b.PublishBookStream)
+	return b.doStreamPublish(bookId, version, "", bookpath, streams.Folder, b.PublishBookStream)
 }
 
 // PublishTarGz publishes a book based on a tar.gz file
 func (b *Book) PublishTarGz(bookId, version, bookpath string) error {
-	return b.doStreamPublish(bookId, version, bookpath, streams.File, b.PublishBookStream)
+	return b.doStreamPublish(bookId, version, "", bookpath, streams.File, b.PublishBookStream)
 }
 
 // Build should only be used by internal clients, Publish by others
 // Build starts a build and will not update the backing git repository
-func (b *Book) Build(bookId, version, bookpath string) error {
-	return b.doStreamPublish(bookId, version, bookpath, streams.PickStream, b.PublishBuildStream)
+func (b *Book) Build(bookId, version, branch, bookpath string) error {
+	return b.doStreamPublish(bookId, version, branch, bookpath, streams.PickStream, b.PublishBuildStream)
 }
 
 // PublishGit packages a git repo as tar.gz and uploads it to gitbook.io
-func (b *Book) BuildGit(bookId, version, bookpath, ref string) error {
-	return b.doStreamPublish(bookId, version, bookpath, streams.GitRef(ref), b.PublishBuildStream)
+func (b *Book) BuildGit(bookId, version, branch, bookpath, ref string) error {
+	return b.doStreamPublish(bookId, version, branch, bookpath, streams.GitRef(ref), b.PublishBuildStream)
 }
 
 // PublishFolder packages a folder as tar.gz and uploads it to gitbook.io
-func (b *Book) BuildFolder(bookId, version, bookpath string) error {
-	return b.doStreamPublish(bookId, version, bookpath, streams.Folder, b.PublishBuildStream)
+func (b *Book) BuildFolder(bookId, version, branch, bookpath string) error {
+	return b.doStreamPublish(bookId, version, branch, bookpath, streams.Folder, b.PublishBuildStream)
 }
 
 // PublishTarGz publishes a book based on a tar.gz file
-func (b *Book) BuildTarGz(bookId, version, bookpath string) error {
-	return b.doStreamPublish(bookId, version, bookpath, streams.File, b.PublishBuildStream)
+func (b *Book) BuildTarGz(bookId, version, branch, bookpath string) error {
+	return b.doStreamPublish(bookId, version, branch, bookpath, streams.File, b.PublishBuildStream)
 }
 
-func (b *Book) doStreamPublish(bookId, version, bookpath string, streamfn streams.StreamFunc, postfn postStream) error {
+func (b *Book) doStreamPublish(bookId, version, branch, bookpath string, streamfn streams.StreamFunc, postfn postStream) error {
 	stream, err := streamfn(bookpath)
 	if err != nil {
 		return err
 	}
 	defer stream.Close()
 
-	return postfn(bookId, version, stream)
+	return postfn(bookId, version, branch, stream)
 }
 
-func (b *Book) PublishBuildStream(bookId, version string, r io.Reader) error {
+func (b *Book) PublishBuildStream(bookId, version, branch string, r io.Reader) error {
 	return b.PublishStream(
 		fmt.Sprintf("/api/book/%s/build/%s", bookId, version),
 		version,
+		branch,
 		r,
 	)
 }
 
-func (b *Book) PublishBookStream(bookId, version string, r io.Reader) error {
+func (b *Book) PublishBookStream(bookId, version, branch string, r io.Reader) error {
 	return b.PublishStream(
 		fmt.Sprintf("/api/book/%s/builds", bookId),
 		version,
+		"",
 		r,
 	)
 }
 
 // PublishStream
-func (b *Book) PublishStream(_url, version string, r io.Reader) error {
+func (b *Book) PublishStream(_url, version, branch string, r io.Reader) error {
 	// Build request
 	req, err := newfileUploadRequest(
 		b.Client.Url(_url),
@@ -126,6 +128,7 @@ func (b *Book) PublishStream(_url, version string, r io.Reader) error {
 	// Set version
 	values := url.Values{}
 	values.Set("version", version)
+	values.Set("branch", branch)
 	req.URL.RawQuery = values.Encode()
 
 	// Execute request
