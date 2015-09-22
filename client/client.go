@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"path"
 
-	"github.com/jmcvetta/napping"
+	"gopkg.in/jmcvetta/napping.v2"
 )
 
 type Client struct {
@@ -88,9 +88,9 @@ func (c *Client) Delete(url string, result interface{}) (*napping.Response, erro
 	})
 }
 
-func (c *Client) Get(url string, p *napping.Params, result interface{}) (*napping.Response, error) {
+func (c *Client) Get(url string, params *url.Values, result interface{}) (*napping.Response, error) {
 	return errorPatch(func(errMsg *Error) (*napping.Response, error) {
-		return c.Session.Get(c.Url(url), p, result, errMsg)
+		return c.Session.Get(c.Url(url), params, result, errMsg)
 	})
 }
 
