@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"path"
 
-	"github.com/jmcvetta/napping"
+	"gopkg.in/jmcvetta/napping.v2"
 )
 
 type Client struct {
