@@ -20,33 +20,33 @@ type Builds struct {
 	Client *client.Client
 }
 
-// BuildOpts are optional data passed along when doing a build (e.g: branch, message, author, ...)
-type BuildOpts models.Build
+// BuildOptions are optional data passed along when doing a build (e.g: branch, message, author, ...)
+type BuildOptions models.Build
 
 type postStream func(bookId, version, branch string, r io.Reader) error
 
 // Build should only be used by internal clients, Publish by others
 // Build starts a build and will not update the backing git repository
-func (b *Builds) Build(bookId, version, path string, opts BuildOpts) error {
+func (b *Builds) Build(bookId, version, path string, opts BuildOptions) error {
 	return b.doStreamPublish(bookId, version, path, opts, streams.PickStream)
 }
 
 // PublishGit packages a git repo as tar.gz and uploads it to gitbook.io
-func (b *Builds) BuildGit(bookId, version, path, ref string, opts BuildOpts) error {
+func (b *Builds) BuildGit(bookId, version, path, ref string, opts BuildOptions) error {
 	return b.doStreamPublish(bookId, version, path, opts, streams.GitRef(ref))
 }
 
 // PublishFolder packages a folder as tar.gz and uploads it to gitbook.io
-func (b *Builds) BuildFolder(bookId, version, path string, opts BuildOpts) error {
+func (b *Builds) BuildFolder(bookId, version, path string, opts BuildOptions) error {
 	return b.doStreamPublish(bookId, version, path, opts, streams.Folder)
 }
 
 // PublishTarGz publishes a book based on a tar.gz file
-func (b *Builds) BuildTarGz(bookId, version, path string, opts BuildOpts) error {
+func (b *Builds) BuildTarGz(bookId, version, path string, opts BuildOptions) error {
 	return b.doStreamPublish(bookId, version, path, opts, streams.File)
 }
 
-func (b *Builds) doStreamPublish(bookId, version, path string, opts BuildOpts, streamfn streams.StreamFunc) error {
+func (b *Builds) doStreamPublish(bookId, version, path string, opts BuildOptions, streamfn streams.StreamFunc) error {
 	stream, err := streamfn(path)
 	if err != nil {
 		return err
@@ -56,7 +56,7 @@ func (b *Builds) doStreamPublish(bookId, version, path string, opts BuildOpts, s
 	return b.PublishBuildStream(bookId, version, stream, opts)
 }
 
-func (b *Builds) PublishBuildStream(bookId, version string, reader io.Reader, opts BuildOpts) error {
+func (b *Builds) PublishBuildStream(bookId, version string, reader io.Reader, opts BuildOptions) error {
 	return b.publishStream(
 		fmt.Sprintf("/book/%s/build/%s", bookId, version),
 		version,
@@ -66,7 +66,7 @@ func (b *Builds) PublishBuildStream(bookId, version string, reader io.Reader, op
 }
 
 // PublishStream
-func (b *Builds) publishStream(_url, version string, reader io.Reader, opts BuildOpts) error {
+func (b *Builds) publishStream(_url, version string, reader io.Reader, opts BuildOptions) error {
 	// Build request
 	req, err := newfileUploadRequest(
 		b.Client.Url(_url),
@@ -109,7 +109,7 @@ func (b *Builds) publishStream(_url, version string, reader io.Reader, opts Buil
 }
 
 // Creates a new file upload http request with optional extra params
-func newfileUploadRequest(uri string, opts BuildOpts, reader io.Reader) (*http.Request, error) {
+func newfileUploadRequest(uri string, opts BuildOptions, reader io.Reader) (*http.Request, error) {
 	// Buffer for body
 	body := &bytes.Buffer{}
 	// Multipart data
