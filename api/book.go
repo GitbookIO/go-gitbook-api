@@ -35,27 +35,6 @@ func (b *Book) Get(bookId string) (models.Book, error) {
 	return book, err
 }
 
-// Publish packages the desired book as a tar.gz and pushes it to gitbookio
-// bookpath can be a path to a tar.gz file, git repo or folder
-func (b *Book) Publish(bookId, version, bookpath string) error {
-	return b.doStreamPublish(bookId, version, "", bookpath, streams.PickStream, b.PublishBookStream)
-}
-
-// PublishGit packages a git repo as tar.gz and uploads it to gitbook.io
-func (b *Book) PublishGit(bookId, version, bookpath, ref string) error {
-	return b.doStreamPublish(bookId, version, "", bookpath, streams.GitRef(ref), b.PublishBookStream)
-}
-
-// PublishFolder packages a folder as tar.gz and uploads it to gitbook.io
-func (b *Book) PublishFolder(bookId, version, bookpath string) error {
-	return b.doStreamPublish(bookId, version, "", bookpath, streams.Folder, b.PublishBookStream)
-}
-
-// PublishTarGz publishes a book based on a tar.gz file
-func (b *Book) PublishTarGz(bookId, version, bookpath string) error {
-	return b.doStreamPublish(bookId, version, "", bookpath, streams.File, b.PublishBookStream)
-}
-
 // Build should only be used by internal clients, Publish by others
 // Build starts a build and will not update the backing git repository
 func (b *Book) Build(bookId, version, branch, bookpath string) error {
@@ -92,15 +71,6 @@ func (b *Book) PublishBuildStream(bookId, version, branch string, r io.Reader) e
 		fmt.Sprintf("/book/%s/build/%s", bookId, version),
 		version,
 		branch,
-		r,
-	)
-}
-
-func (b *Book) PublishBookStream(bookId, version, branch string, r io.Reader) error {
-	return b.PublishStream(
-		fmt.Sprintf("/book/%s/builds", bookId),
-		version,
-		"",
 		r,
 	)
 }
