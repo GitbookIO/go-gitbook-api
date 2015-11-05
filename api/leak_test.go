@@ -21,7 +21,7 @@ func TestLeaks(t *testing.T) {
 
 	// Create one client
 	c := client.NewClient(client.ClientOptions{
-		Host:     "http://localhost:5000",
+		Host:     "http://localhost:5000/api/",
 		Username: "aaronomullan",
 		Password: "0c72ca47-5145-481d-bed8-d8a076d1b3ad",
 	})
