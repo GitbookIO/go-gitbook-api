@@ -46,8 +46,8 @@ import (
 func main() {
     // Make API client
     api := gitbook.NewAPI(gitbook.APIOptions{
-        // Custom host instead of "https://www.gitbook.io"
-        Host: "http://localhost:5000",
+        // Custom host instead of "https://api.gitbook.com"
+        Host: "http://localhost:5000/api/",
 
         // Hit API with a specific user
         Username: "username",

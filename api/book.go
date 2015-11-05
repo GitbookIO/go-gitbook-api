@@ -27,7 +27,7 @@ func (b *Book) Get(bookId string) (models.Book, error) {
 	book := models.Book{}
 
 	_, err := b.Client.Get(
-		fmt.Sprintf("/api/book/%s", bookId),
+		fmt.Sprintf("/book/%s", bookId),
 		nil,
 		&book,
 	)
@@ -89,7 +89,7 @@ func (b *Book) doStreamPublish(bookId, version, branch, bookpath string, streamf
 
 func (b *Book) PublishBuildStream(bookId, version, branch string, r io.Reader) error {
 	return b.PublishStream(
-		fmt.Sprintf("/api/book/%s/build/%s", bookId, version),
+		fmt.Sprintf("/book/%s/build/%s", bookId, version),
 		version,
 		branch,
 		r,
@@ -98,7 +98,7 @@ func (b *Book) PublishBuildStream(bookId, version, branch string, r io.Reader) e
 
 func (b *Book) PublishBookStream(bookId, version, branch string, r io.Reader) error {
 	return b.PublishStream(
-		fmt.Sprintf("/api/book/%s/builds", bookId),
+		fmt.Sprintf("/book/%s/builds", bookId),
 		version,
 		"",
 		r,
