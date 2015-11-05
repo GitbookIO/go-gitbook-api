@@ -28,7 +28,7 @@ type ClientOptions struct {
 func NewClient(opts ClientOptions) *Client {
 	// Default hostname
 	if opts.Host == "" {
-		opts.Host = "https://www.gitbook.io"
+		opts.Host = "https://api.gitbook.com"
 	}
 
 	// Setup session
