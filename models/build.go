@@ -1,7 +1,6 @@
 package models
 
 type Build struct {
-	Version string      `json:"version"`
 	Branch  string      `json:"branch"`
 	Message string      `json:"message"`
 	Author  BuildAuthor `json:"author"`
