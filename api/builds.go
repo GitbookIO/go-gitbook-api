@@ -2,13 +2,15 @@ package api
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"net/url"
+	"net/textproto"
 
 	"github.com/GitbookIO/go-gitbook-api/client"
+	"github.com/GitbookIO/go-gitbook-api/models"
 	"github.com/GitbookIO/go-gitbook-api/streams"
 
 	"mime/multipart"
@@ -18,57 +20,58 @@ type Builds struct {
 	Client *client.Client
 }
 
+// BuildOpts are optional data passed along when doing a build (e.g: branch, message, author, ...)
+type BuildOpts models.Build
+
 type postStream func(bookId, version, branch string, r io.Reader) error
 
 // Build should only be used by internal clients, Publish by others
 // Build starts a build and will not update the backing git repository
-func (b *Builds) Build(bookId, version, branch, bookpath string) error {
-	return b.doStreamPublish(bookId, version, branch, bookpath, streams.PickStream, b.PublishBuildStream)
+func (b *Builds) Build(bookId, version, path string, opts BuildOpts) error {
+	return b.doStreamPublish(bookId, version, path, opts, streams.PickStream)
 }
 
 // PublishGit packages a git repo as tar.gz and uploads it to gitbook.io
-func (b *Builds) BuildGit(bookId, version, branch, bookpath, ref string) error {
-	return b.doStreamPublish(bookId, version, branch, bookpath, streams.GitRef(ref), b.PublishBuildStream)
+func (b *Builds) BuildGit(bookId, version, path, ref string, opts BuildOpts) error {
+	return b.doStreamPublish(bookId, version, path, opts, streams.GitRef(ref))
 }
 
 // PublishFolder packages a folder as tar.gz and uploads it to gitbook.io
-func (b *Builds) BuildFolder(bookId, version, branch, bookpath string) error {
-	return b.doStreamPublish(bookId, version, branch, bookpath, streams.Folder, b.PublishBuildStream)
+func (b *Builds) BuildFolder(bookId, version, path string, opts BuildOpts) error {
+	return b.doStreamPublish(bookId, version, path, opts, streams.Folder)
 }
 
 // PublishTarGz publishes a book based on a tar.gz file
-func (b *Builds) BuildTarGz(bookId, version, branch, bookpath string) error {
-	return b.doStreamPublish(bookId, version, branch, bookpath, streams.File, b.PublishBuildStream)
+func (b *Builds) BuildTarGz(bookId, version, path string, opts BuildOpts) error {
+	return b.doStreamPublish(bookId, version, path, opts, streams.File)
 }
 
-func (b *Builds) doStreamPublish(bookId, version, branch, bookpath string, streamfn streams.StreamFunc, postfn postStream) error {
-	stream, err := streamfn(bookpath)
+func (b *Builds) doStreamPublish(bookId, version, path string, opts BuildOpts, streamfn streams.StreamFunc) error {
+	stream, err := streamfn(path)
 	if err != nil {
 		return err
 	}
 	defer stream.Close()
 
-	return postfn(bookId, version, branch, stream)
+	return b.PublishBuildStream(bookId, version, stream, opts)
 }
 
-func (b *Builds) PublishBuildStream(bookId, version, branch string, r io.Reader) error {
-	return b.PublishStream(
+func (b *Builds) PublishBuildStream(bookId, version string, reader io.Reader, opts BuildOpts) error {
+	return b.publishStream(
 		fmt.Sprintf("/book/%s/build/%s", bookId, version),
 		version,
-		branch,
-		r,
+		reader,
+		opts,
 	)
 }
 
 // PublishStream
-func (b *Builds) PublishStream(_url, version, branch string, r io.Reader) error {
+func (b *Builds) publishStream(_url, version string, reader io.Reader, opts BuildOpts) error {
 	// Build request
 	req, err := newfileUploadRequest(
 		b.Client.Url(_url),
-		// No params
-		nil,
-		"book",
-		r,
+		opts,
+		reader,
 	)
 	if err != nil {
 		return err
@@ -79,12 +82,6 @@ func (b *Builds) PublishStream(_url, version, branch string, r io.Reader) error 
 	// Auth
 	pwd, _ := uinfo.Password()
 	req.SetBasicAuth(uinfo.Username(), pwd)
-
-	// Set version
-	values := url.Values{}
-	values.Set("version", version)
-	values.Set("branch", branch)
-	req.URL.RawQuery = values.Encode()
 
 	// Execute request
 	response, err := b.Client.Client.Do(req)
@@ -112,14 +109,24 @@ func (b *Builds) PublishStream(_url, version, branch string, r io.Reader) error 
 }
 
 // Creates a new file upload http request with optional extra params
-func newfileUploadRequest(uri string, params map[string]string, paramName string, reader io.Reader) (*http.Request, error) {
+func newfileUploadRequest(uri string, opts BuildOpts, reader io.Reader) (*http.Request, error) {
 	// Buffer for body
 	body := &bytes.Buffer{}
 	// Multipart data
 	writer := multipart.NewWriter(body)
 
+	// Write JSON metadata
+	metadataPart, err := writer.CreatePart(textproto.MIMEHeader{
+		"Content-Disposition": {"form-data; name=metadata"},
+		"Content-Type":        {"application/json"},
+	})
+	if err != nil {
+		return nil, err
+	}
+	metadataPart.Write([]byte(jsonString(opts)))
+
 	// File part
-	part, err := writer.CreateFormFile(paramName, "book.tar.gz")
+	part, err := writer.CreateFormFile("book", "book.tar.gz")
 	if err != nil {
 		return nil, err
 	}
@@ -130,10 +137,7 @@ func newfileUploadRequest(uri string, params map[string]string, paramName string
 		return nil, err
 	}
 
-	// Write extra fields
-	for key, val := range params {
-		_ = writer.WriteField(key, val)
-	}
+	// Close writer
 	err = writer.Close()
 	if err != nil {
 		return nil, err
@@ -148,4 +152,11 @@ func newfileUploadRequest(uri string, params map[string]string, paramName string
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	return req, nil
+}
+
+func jsonString(v interface{}) string {
+	if data, err := json.Marshal(v); err == nil {
+		return string(data)
+	}
+	return ""
 }
