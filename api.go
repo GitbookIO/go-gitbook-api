@@ -12,6 +12,8 @@ type API struct {
 	Book *api.Book
 	// Book listing API client
 	Books *api.Books
+	// Builds API client
+	Builds *api.Builds
 	// User API client
 	User *api.User
 
@@ -31,6 +33,7 @@ func NewAPIFromClient(c *client.Client) *API {
 		Account: &api.Account{c},
 		Book:    &api.Book{c},
 		Books:   &api.Books{c},
+		Books:   &api.Builds{c},
 		User:    &api.User{c},
 		Client:  c,
 	}
