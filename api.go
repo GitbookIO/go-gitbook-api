@@ -34,9 +34,9 @@ func NewAPIFromClient(c *client.Client) *API {
 		Account: &api.Account{c},
 		Book:    &api.Book{c},
 		Books:   &api.Books{c},
-		Books:   &api.Builds{c},
-		User:    &api.User{c},
-		Client:  c,
+		Builds:  &api.Builds{c},
+
+		Client: c,
 	}
 }
 
