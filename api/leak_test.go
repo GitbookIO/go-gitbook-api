@@ -22,8 +22,8 @@ func TestLeaks(t *testing.T) {
 	// Create one client
 	c := client.NewClient(client.ClientOptions{
 		Host:     "http://localhost:5000/api/",
-		Username: "aaronomullan",
-		Password: "0c72ca47-5145-481d-bed8-d8a076d1b3ad",
+		Username: "james",
+		Password: "730e0de8-ca53-42f9-9ad3-49c547b0cdc0",
 	})
 
 	// Do some work
@@ -33,7 +33,7 @@ func TestLeaks(t *testing.T) {
 			c2 := c.Fork(client.ClientOptions{})
 			b := Book{c2}
 
-			_, err := b.Get("aaronomullan/abc")
+			_, err := b.Get("james/test")
 			if err != nil {
 				t.Error(err)
 			}
