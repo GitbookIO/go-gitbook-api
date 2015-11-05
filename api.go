@@ -6,6 +6,8 @@ import (
 )
 
 type API struct {
+	// Author API client
+	Author *api.Author
 	// Authentication API client
 	Account *api.Account
 	// Individual book API client
@@ -14,8 +16,6 @@ type API struct {
 	Books *api.Books
 	// Builds API client
 	Builds *api.Builds
-	// User API client
-	User *api.User
 
 	// Internal client
 	Client *client.Client
@@ -30,6 +30,7 @@ func NewAPI(opts APIOptions) *API {
 
 func NewAPIFromClient(c *client.Client) *API {
 	return &API{
+		Author:  &api.Author{c},
 		Account: &api.Account{c},
 		Book:    &api.Book{c},
 		Books:   &api.Books{c},
