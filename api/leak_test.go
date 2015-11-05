@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"sync"
@@ -17,36 +18,46 @@ func TestLeaks(t *testing.T) {
 	// Get current count
 	c1 := openDescriptors()
 
-	wg := &sync.WaitGroup{}
+	// Call in isolated function
+	func() {
+		wg := &sync.WaitGroup{}
 
-	// Create one client
-	c := client.NewClient(client.ClientOptions{
-		Host:     "http://localhost:5000/api/",
-		Username: "james",
-		Password: "730e0de8-ca53-42f9-9ad3-49c547b0cdc0",
-	})
+		// Create one client
+		c := client.NewClient(client.ClientOptions{
+			Host:     "http://localhost:5000/api/",
+			Username: "james",
+			Password: "730e0de8-ca53-42f9-9ad3-49c547b0cdc0",
+		})
 
-	// Do some work
-	for i := 0; i < 10; i++ {
-		go func() {
-			wg.Add(1)
-			c2 := c.Fork(client.ClientOptions{})
-			b := Book{c2}
+		// Do some work
+		for i := 0; i < 10; i++ {
+			go func() {
+				wg.Add(1)
+				c2 := c.Fork(client.ClientOptions{})
+				b := Book{c2}
 
-			_, err := b.Get("james/test")
-			if err != nil {
-				t.Error(err)
-			}
+				_, err := b.Get("james/test")
+				if err != nil {
+					t.Error(err)
+				}
 
-			wg.Done()
-		}()
+				wg.Done()
+			}()
 
-		t.Log(c1, "...", openDescriptors())
+			t.Log(c1, "...", openDescriptors())
+		}
+
+		wg.Wait()
+
+		time.Sleep(time.Second)
+	}()
+
+	// Close pooled connections in net/http
+	if transport, ok := http.DefaultTransport.(*http.Transport); ok {
+		transport.CloseIdleConnections()
+	} else {
+		t.Errorf("Failed to get default transport")
 	}
-
-	wg.Wait()
-
-	time.Sleep(time.Second)
 
 	// See how many files are open now
 	c2 := openDescriptors()
