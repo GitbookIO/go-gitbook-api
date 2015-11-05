@@ -1,12 +1,13 @@
 package models
 
 // Account data structure as returned by the API
+// Account extends Author with private fields
 type Account struct {
-	Name     string             `json:"name"`
-	Email    string             `json:"email"`
-	Token    string             `json:"token"`
-	Username string             `json:"username"`
-	GitHub   *GitHubAccountInfo `json:"github"`
+	Author
+
+	Email  string             `json:"email"`
+	Token  string             `json:"token"`
+	GitHub *GitHubAccountInfo `json:"github"`
 }
 
 type GitHubAccountInfo struct {
