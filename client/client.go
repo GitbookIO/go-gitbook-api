@@ -62,9 +62,13 @@ func (c *Client) Fork(opts ClientOptions) *Client {
 		opts.Password = c.Password
 	}
 
+	// Create copy of current headers for child
+	header := http.Header{}
+	copyHeader(header, *c.Session.Header)
+
 	session := &napping.Session{
 		Userinfo: url.UserPassword(opts.Username, opts.Password),
-		Header:   c.Session.Header,
+		Header:   &header,
 		Client:   c.Session.Client,
 	}
 
@@ -164,4 +168,13 @@ func DecodeError(reader io.Reader) (*Error, error) {
 		}, nil
 	}
 	return errMsg, nil
+}
+
+// Copied from go's source
+func copyHeader(dst, src http.Header) {
+	for k, vv := range src {
+		for _, v := range vv {
+			dst.Add(k, v)
+		}
+	}
 }
