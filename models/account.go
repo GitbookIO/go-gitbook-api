@@ -11,6 +11,7 @@ type Account struct {
 }
 
 type GitHubAccountInfo struct {
-	Username string `json:"username"`
-	Token    string `json:"token"`
+	Username string   `json:"username"`
+	Token    string   `json:"token"`
+	Scopes   []string `json:"scopes"`
 }
