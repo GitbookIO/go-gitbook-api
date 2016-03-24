@@ -14,7 +14,7 @@ func TestBuildsCreate(t *testing.T) {
 	})
 	b := Builds{c}
 
-	err := b.BuildGit("james/test", "master", "/Users/aaron/git/documentation", "master", BuildOpts{
+	err := b.BuildGit("james/test", "master", "/Users/aaron/git/documentation", "master", BuildOptions{
 		Branch: "master",
 	})
 	if err != nil {
